@@ -27,7 +27,9 @@ User-facing promise:
 
 Implementation scope:
 
-- Capture email and business URL.
+- Capture business URL first.
+- Run only cheap URL/domain validation before email capture.
+- Capture email before expensive provider or LLM calls.
 - Auto-create or reuse a lightweight user account from the email.
 - Do not require password registration before the user sees value.
 - Do not send outbound email in the first free version.
@@ -72,10 +74,14 @@ Draw this flow before writing schema or code.
 
 ```text
 Visitor
-  -> enters email + business_url
+  -> enters business_url
+  -> system normalizes URL/domain
+  -> system checks that market/domain is minimally usable
+  -> user enters email to run the free qualification
   -> system normalizes email
   -> system creates or finds lightweight user
-  -> system normalizes URL/domain into prospect identity
+  -> system creates or finds prospect identity by normalized domain
+  -> system creates qualification_request with public access token
   -> system checks monthly free allowance
   -> system checks reusable prospect evidence cache
   -> if cache is usable: reuse evidence
@@ -108,6 +114,22 @@ The free qualification result may show:
 - limitations
 - CTA to view the sample paid report
 
+The free product may also show a generic recent-activity trust element, derived from completed qualification requests:
+
+```text
+Recent activity
+- Qualification completed 3 minutes ago
+- Qualification completed 11 minutes ago
+```
+
+Rules:
+
+- Do not show submitted URL.
+- Do not show business name.
+- Do not show city/location.
+- Do not show qualification outcome.
+- Do not create a separate table for this in V1.
+
 The free result must not show:
 
 - conversion-path readiness findings
@@ -123,21 +145,26 @@ Use email capture as the first account model.
 Chosen flow:
 
 ```text
-email + business_url -> lightweight user -> qualification result
+business_url -> cheap URL precheck -> email gate -> lightweight user -> qualification result
 ```
 
 Rules:
 
-- Email is required for the free check.
+- Business URL is entered first.
+- Only cheap URL/domain validation happens before email capture.
+- Email is required before provider or LLM calls are made.
 - A user record can be auto-created from the submitted email.
 - No password is required for the first V1 free flow.
 - No outbound email is required in the first V1 free flow.
+- A qualification result is accessed using a generated public access token until login/magic-link support exists.
 - Later paid/report-history features can add magic-link login or fuller registration.
 
 Why:
 
 - Fully open free checks lose feedback and allowance control.
-- Full registration adds friction before value is shown.
+- Running the full provider pipeline before email can waste API/LLM cost.
+- Full registration adds too much friction before value is shown.
+- URL-first precheck feels lighter while still gating expensive work behind email intent.
 - Email capture supports follow-up, feedback and a later upgrade path.
 
 ## Module 1 Entities
@@ -174,7 +201,7 @@ Does not own:
 - user-specific result wording
 - report ownership
 
-### Allowances
+### Monthly Usage
 
 Owns free usage limits.
 
@@ -188,7 +215,7 @@ Rule:
 
 - A qualification consumes allowance whether evidence is freshly fetched or served from cache.
 
-### Qualifications
+### Qualification Requests
 
 Owns each user's free check.
 
@@ -209,7 +236,7 @@ Does not own:
 - paid report content
 - token charging
 
-### Evidence Runs
+### Provider Calls
 
 Owns provider and LLM execution records.
 
@@ -229,7 +256,7 @@ Purpose:
 - understand cost
 - make results inspectable
 
-### Parsed Evidence
+### Ranked Keywords, Page checks
 
 Owns structured facts extracted from provider responses.
 
@@ -280,7 +307,7 @@ Candidate table responsibilities:
 users
   lightweight user identity and normalized email
 
-monthly_qualification_usage
+monthly_usage
   one row per user per month or equivalent allowance period
 
 prospects
@@ -289,14 +316,14 @@ prospects
 qualification_requests
   one user-owned free check and final free result
 
-evidence_runs
-  provider/LLM calls, raw JSON, status, errors and costs
+provider_calls
+  DataForSEO/OpenAI calls, raw JSON, status, errors and costs
 
 ranked_keywords
-  parsed ranked keyword rows linked to prospect/evidence run
+  parsed ranked keyword rows linked to prospect/provider call
 
 page_checks
-  parsed homepage/on-page facts linked to prospect/evidence run
+  parsed homepage/on-page facts linked to prospect/provider call
 ```
 
 Open design question:
@@ -309,25 +336,9 @@ Open design question:
 - Store the deterministic score fields directly on `qualification_requests` for V1 simplicity.
 - Split into a separate score table only if scoring versions become hard to reason about.
 
-## Free Relationship Sketch
+## Module 1 Relationship Sketch
 
-```text
-users
-  -> monthly_qualification_usage
-  -> qualification_requests
-
-qualification_requests
-  -> prospects
-  -> evidence_runs used for the result
-
-prospects
-  -> ranked_keywords
-  -> page_checks
-
-evidence_runs
-  -> ranked_keywords
-  -> page_checks
-```
+![ERD](/Users/ptalur/greycellmatters/app1/Design/ERD.png)
 
 Core boundary:
 
@@ -335,6 +346,8 @@ Core boundary:
 prospect/domain evidence = reusable public cache
 qualification request = user-owned result and allowance event
 ```
+
+
 
 ## Paid Module Placeholder
 
@@ -358,4 +371,3 @@ Later paid modules:
 - final report
 
 Do not design checkout or token charging until the no-defensible-opportunity rule is finalized.
-

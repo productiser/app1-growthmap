@@ -30,6 +30,13 @@ Completed:
   - moved experimental scripts into ignored archive
   - created a public README
 - Split public build tracking from private learning tracking.
+- Designed the Module 1 ERD for the free qualification flow.
+- Replaced the stale DDL with the seven-table Module 1 schema.
+- Applied the new schema locally to the `growthmap` database.
+- Connected and pushed the cleaned public repo to GitHub.
+- Chose a two-video split:
+  - APP1.3: product flow to database schema
+  - APP1.4: first free qualification endpoint
 
 Decisions:
 
@@ -38,14 +45,14 @@ Decisions:
 - The LLM may classify/group keyword evidence and summarize observed signals.
 - Code owns the deterministic score, outcome and final guardrails.
 - Provider/API failures must not become `weak_prospect`; missing core evidence should become `inconclusive` or a limited result.
+- Do not run expensive DataForSEO/LLM calls before email intent.
+- The first endpoint is `POST /qualify/precheck` and should be stateless.
 
 Next:
 
-- Add MIT license.
-- Add a warning to the stale `Design/DDL.sql`.
-- Update `main.py` header to mark it as an early scaffold.
-- Design the compact replacement schema from `Design/module-design.md`.
-- Only then replace/apply DDL.
+- Build `POST /qualify/precheck`.
+- Record APP1.3 as a short database-design walkthrough.
+- Record APP1.4 tomorrow around the first endpoint flow.
 
 ## 2026-06-22
 

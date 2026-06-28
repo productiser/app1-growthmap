@@ -7,7 +7,9 @@ The product helps aspiring and early-stage SEO freelancers qualify whether a bus
 Current V1 direction:
 
 ```text
-email + business URL
+business URL
+-> cheap URL/domain precheck
+-> email gate
 -> free SEO opportunity qualification
 -> sample GBP 12 pitch-ready report
 -> paid report pipeline later
@@ -30,6 +32,8 @@ The Python app is still being refactored toward the qualification-first flow. So
 The first production slice will ship the free qualification flow:
 
 - capture email and business URL
+- run only cheap URL/domain validation before email capture
+- require email before expensive provider or LLM calls
 - auto-create or reuse a lightweight user
 - normalize the prospect URL/domain
 - check monthly free qualification allowance

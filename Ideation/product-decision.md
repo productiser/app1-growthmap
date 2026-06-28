@@ -13,7 +13,9 @@ GrowthMap helps aspiring and early-stage SEO freelancers decide whether a busine
 The frozen V1 product direction is:
 
 ```text
-email + business URL
+business URL
+-> cheap URL/domain precheck
+-> email gate
 -> free SEO prospect qualification
 -> sample GBP 12 paid report
 -> paid report pipeline later
@@ -53,6 +55,8 @@ The paid product later turns defensible evidence into a pitch-ready report with 
 Ship first:
 
 - capture email and business URL
+- run only cheap URL/domain validation before email capture
+- require email before expensive provider or LLM calls
 - auto-create or reuse a lightweight user
 - normalize the prospect domain
 - enforce monthly free qualification allowance
@@ -95,8 +99,8 @@ Later paid scope:
 
 Input:
 
-- email
 - business URL
+- email, after URL/domain precheck and before provider calls
 
 Evidence:
 
