@@ -1,0 +1,28 @@
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+dataforseo.http
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info/
+
+# Virtual environments
+.venv/
+
+# OS/editor files
+.DS_Store
+.vscode/
+
+# Large downloaded provider data
+Ideation/Samples/dataforseo-google-ads-locations.json
+
+# Internal content planning
+APP1-videolistideas.md
+archive/
+Learning/

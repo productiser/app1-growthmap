@@ -1,0 +1,202 @@
+{
+  "status": "experimental_paid_pipeline_complete",
+  "run": {
+    "date": "2026-06-22",
+    "target": "https://millhilldentist.co.uk/",
+    "market": "United Kingdom / English",
+    "elapsed_seconds": 279.35,
+    "pages_checked": [
+      "https://millhilldentist.co.uk/",
+      "https://millhilldentist.co.uk/invisalign/",
+      "https://millhilldentist.co.uk/treatment/dental-implants/"
+    ],
+    "screenshot": "Ideation/Samples/millhilldentist-homepage-2026-06-22.png"
+  },
+  "pipeline": [
+    {
+      "step": 1,
+      "name": "ranked_keywords",
+      "provider": "DataForSEO Labs",
+      "rows_used": 100,
+      "cost_usd": 0.02
+    },
+    {
+      "step": 2,
+      "name": "keywords_for_site",
+      "provider": "DataForSEO Google Ads",
+      "rows_returned": 852,
+      "rows_used": 100,
+      "cost_usd": 0.075
+    },
+    {
+      "step": 3,
+      "name": "on_page_instant_pages",
+      "provider": "DataForSEO On-Page",
+      "pages": 3,
+      "cost_usd": 0.000375
+    },
+    {
+      "step": 4,
+      "name": "bounded_screenshot_analysis",
+      "provider": "OpenAI",
+      "cost_usd": null
+    },
+    {
+      "step": 5,
+      "name": "keyword_classification_and_candidate_generation",
+      "provider": "OpenAI",
+      "cost_usd": null
+    },
+    {
+      "step": 6,
+      "name": "sellable_opportunity_selection",
+      "provider": "OpenAI",
+      "cost_usd": null
+    },
+    {
+      "step": 7,
+      "name": "pitch_report_generation",
+      "provider": "OpenAI",
+      "cost_usd": null
+    }
+  ],
+  "costs": {
+    "dataforseo_total_usd": 0.095375,
+    "openai_total_usd": null,
+    "note": "OpenAI cost was not captured by the current experiment. Production must store token usage and calculated cost for every inference."
+  },
+  "page_evidence": [
+    {
+      "url": "https://millhilldentist.co.uk/",
+      "status_code": 200,
+      "title": "Dentist in North London | Mill Hill Dental Practice",
+      "h1": [],
+      "canonical": "https://millhilldentist.co.uk/",
+      "word_count": 2920
+    },
+    {
+      "url": "https://millhilldentist.co.uk/invisalign/",
+      "status_code": 200,
+      "title": "Invisalign® in North London | Mill Hill Dental Practice",
+      "h1": [
+        "Invisalign® in North London"
+      ],
+      "canonical": "https://millhilldentist.co.uk/invisalign/",
+      "word_count": 5379
+    },
+    {
+      "url": "https://millhilldentist.co.uk/treatment/dental-implants/",
+      "status_code": 200,
+      "title": "Dental Implants in North London | Mill Hill Dental Practice",
+      "h1": [
+        "Dental Implants in North London"
+      ],
+      "canonical": "https://millhilldentist.co.uk/treatment/dental-implants/",
+      "word_count": 3077
+    }
+  ],
+  "verified_findings": [
+    {
+      "id": "find-001-local-organic-strength",
+      "type": "strength",
+      "summary": "Strong top-10 rankings exist for core Mill Hill and North London dentist queries.",
+      "evidence": [
+        "dentist mill hill: position 4, volume 590, CPC 4.79",
+        "dentists mill hill: position 5, volume 590, CPC 4.79",
+        "dentist north london: position 6, volume 260, CPC 6.79",
+        "north london dentists: position 8, volume 140, CPC 4.66"
+      ]
+    },
+    {
+      "id": "find-003-invisalign-underperformance",
+      "type": "gap",
+      "summary": "The dedicated Invisalign page ranks outside strong organic positions for several relevant commercial queries.",
+      "evidence": [
+        "invisalign aligners london: position 86, volume 1900, CPC 29.64",
+        "cheap invisalign london: position 87, volume 720, CPC 23.74",
+        "invisalign doctors near me: position 55, volume 140, CPC 12.17",
+        "invisalign treatment near me: position 74, volume 140, CPC 28.41"
+      ]
+    },
+    {
+      "id": "find-004-emergency-underperformance",
+      "type": "gap",
+      "summary": "The emergency dental page ranks in positions 35-42 for multiple 24/7 dental-care searches.",
+      "evidence": [
+        "24/7 dental clinic: position 35",
+        "24/7 dental care: position 42",
+        "24/7 dental care near me: position 42"
+      ]
+    },
+    {
+      "id": "find-005-implants-visibility-gap",
+      "type": "possible_gap",
+      "summary": "A substantial implants page exists and keyword ideas show demand, but the ranked-keyword sample did not provide direct implant ranking evidence.",
+      "evidence": [
+        "dental implants: volume 22200, CPC 9.42",
+        "dental implants london: volume 2400, CPC 22.79",
+        "dental implants uk: volume 1900, CPC 10.90"
+      ]
+    },
+    {
+      "id": "find-006-above-fold-ux-gap",
+      "type": "secondary_gap",
+      "summary": "The supplied screenshot shows a tall, dense multi-row navigation area dominating the initial viewport and pushing the hero content down."
+    },
+    {
+      "id": "find-007-visible-booking-cta-strength",
+      "type": "strength",
+      "summary": "The Online Booking CTA is clearly visible and visually distinct above the fold."
+    }
+  ],
+  "opportunity_candidates": [
+    {
+      "id": "opp-001-invisalign-organic-growth",
+      "recommended_service": "Invisalign landing-page SEO optimisation",
+      "status": "selected_primary",
+      "reason": "Existing page plus direct ranking underperformance, strong commercial indicators, clear bounded delivery, and relatively low overclaim risk."
+    },
+    {
+      "id": "opp-002-emergency-dental-seo",
+      "recommended_service": "Emergency dental-care SEO optimisation",
+      "status": "secondary",
+      "reason": "Direct ranking evidence exists, but actual 24/7 availability must be verified."
+    },
+    {
+      "id": "opp-003-dental-implants-visibility",
+      "recommended_service": "Dental-implants page SEO review",
+      "status": "not_selected",
+      "reason": "Demand is visible, but direct ranking evidence was absent from the limited ranked-keyword sample."
+    },
+    {
+      "id": "opp-004-above-the-fold-conversion-ux",
+      "recommended_service": "Header/navigation UX refinement",
+      "status": "secondary",
+      "reason": "The screenshot provides strong visual evidence, but only one viewport was assessed."
+    }
+  ],
+  "selection": {
+    "primary_candidate_id": "opp-001-invisalign-organic-growth",
+    "confidence": "high",
+    "selection_reason": "The Invisalign opportunity has a specific evidenced deficiency on an existing high-value service page, high commercial indicators, and a clear freelancer delivery path without requiring unsupported claims.",
+    "secondary_candidate_ids": [
+      "opp-002-emergency-dental-seo",
+      "opp-004-above-the-fold-conversion-ux"
+    ]
+  },
+  "validation_rules_applied": [
+    "The LLM selected only from supplied candidate IDs.",
+    "Existing strength alone was not accepted as the primary sellable opportunity.",
+    "Competitor-brand terms were separated from relevant demand.",
+    "The report acknowledges strengths and limitations.",
+    "No lost-revenue, guaranteed-ranking, lead, booking, or causation claims were allowed."
+  ],
+  "known_pipeline_issues": [
+    "The first run parsed the keyword-ideas response incorrectly; the parser was fixed and the complete pipeline rerun.",
+    "The Google Ads keywords-for-site output is broad and noisy; production needs deterministic pre-filtering before LLM classification.",
+    "OpenAI token usage and cost were not captured.",
+    "The run took 279.35 seconds and should not be implemented as a synchronous customer request without revisiting execution design.",
+    "The screenshot was user-supplied rather than captured automatically."
+  ],
+  "final_report_file": "Ideation/Reports/paid-report-millhilldentist-2026-06-22.md"
+}
