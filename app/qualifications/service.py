@@ -1,12 +1,38 @@
 import logging
 import secrets
 from urllib.parse import urlparse
+from app.qualifications.repository import get_or_create_user,get_or_create_prospect,create_qualification_request
 
 
 logger = logging.getLogger(__name__)
 
-SUPPORTED_COUNTRY_CODES = {"GB", "US", "CA", "AU", "IN"}
-DEFAULT_LANGUAGE_CODE = "en"
+SUPPORTED_MARKETS = {
+    "GB": {
+        "label": "United Kingdom",
+        "language_code": "en",
+        "dataforseo_location_code": 2826,
+    },
+    "US": {
+        "label": "United States",
+        "language_code": "en",
+        "dataforseo_location_code": 2840,
+    },
+    "CA": {
+        "label": "Canada",
+        "language_code": "en",
+        "dataforseo_location_code": 2124,
+    },
+    "AU": {
+        "label": "Australia",
+        "language_code": "en",
+        "dataforseo_location_code": 2036,
+    },
+    "IN": {
+        "label": "India",
+        "language_code": "en",
+        "dataforseo_location_code": 2356,
+    },
+}
 
 
 def normalise_submitted_url(raw_url: str) -> str:
@@ -50,8 +76,8 @@ def normalise_email(raw_email: str) -> str:
 
 def normalise_country_code(raw_country_code: str) -> str:
     country_code = raw_country_code.strip().upper()
-    if country_code not in SUPPORTED_COUNTRY_CODES:
-        supported = ", ".join(sorted(SUPPORTED_COUNTRY_CODES))
+    if country_code not in SUPPORTED_MARKETS:
+        supported = ", ".join(sorted(SUPPORTED_MARKETS))
         raise ValueError(f"Country code must be one of: {supported}")
 
     return country_code
@@ -73,6 +99,16 @@ def start_qualification(business_url: str, email: str, country_code: str) -> dic
         normalised_domain,
         normalised_country_code,
     )
+    market = SUPPORTED_MARKETS[normalised_country_code]
+
+    # 1. Create or reuse user based on email id. 
+    user_id = get_or_create_user(normalised_email)
+
+    # 2. Create a reusable prospect
+    prospect_id = get_or_create_prospect(normalised_domain,normalised_url,normalised_country_code, market["language_code"])
+
+    #3. Create qualification request. 
+    qualification_id=create_qualification_request(user_id=user_id,prospect_id=prospect_id,public_access_token=public_access_token,submitted_url=normalised_url)
 
     return {
         "status": "validated",
@@ -80,14 +116,16 @@ def start_qualification(business_url: str, email: str, country_code: str) -> dic
         "normalised_url": normalised_url,
         "normalised_domain": normalised_domain,
         "email": normalised_email,
+        "user_id":user_id,
+        "prospect_id": prospect_id,
+        "qualification_id":qualification_id,
         "market": {
             "country_code": normalised_country_code,
-            "language_code": DEFAULT_LANGUAGE_CODE,
+            "language_code": market["language_code"],
         },
         "public_access_token": public_access_token,
         "next_step": "create_user_prospect_and_qualification_request",
         "limitations": [
             "No DataForSEO, LLM, scoring or result generation has run yet.",
-            "Database creation is the next implementation slice.",
         ],
     }

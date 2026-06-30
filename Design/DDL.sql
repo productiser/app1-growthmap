@@ -50,9 +50,8 @@ CREATE TABLE prospects (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     normalized_domain TEXT NOT NULL UNIQUE,
     first_submitted_url TEXT NOT NULL,
-    assumed_country TEXT,
-    assumed_language TEXT,
-    market_inference_note TEXT,
+    country_code TEXT NOT NULL,
+    language_code TEXT NOT NULL,
     first_seen_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_seen_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

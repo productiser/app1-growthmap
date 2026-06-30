@@ -22,6 +22,48 @@ Running total:
 
 - Through 2026-06-28: approximately 6.5 focused hours tracked retrospectively.
 
+## 2026-06-30
+
+Objective:
+
+- Add the database/repository slice behind `POST /qualify/start`.
+
+Time log:
+
+- Start: 17:27
+- Break: 18:11
+- Back: 18:34
+- Stop:
+- Focused time:
+- Running total:
+
+Completed:
+
+- Started `app/qualifications/repository.py`.
+- Implemented and manually tested `get_or_create_user`.
+- Confirmed new user creation works.
+- Confirmed existing user reuse/update works through `ON CONFLICT (email) DO UPDATE ... RETURNING id`.
+- Renamed prospect market columns from inferred names to explicit `country_code` and `language_code`.
+- Added `Design/2026-06-30-prospects-market-columns.sql` to migrate the existing local database.
+- Implemented and manually tested `get_or_create_prospect`.
+- Confirmed prospect creation/reuse works by `normalized_domain`.
+- Implemented and manually tested `create_qualification_request`.
+- Connected `POST /qualify/start` through user, prospect and qualification request creation.
+- Added `user_id`, `prospect_id` and `qualification_id` to the start response.
+- Verified the app compiles and still exposes `/qualify/start`.
+
+Decisions:
+
+- Keep repository functions responsible for SQL only.
+- Use parameterized SQL with tuple parameters, for example `(email,)`, instead of raw string values.
+
+Next:
+
+- Clean up formatting and naming in repository/service files.
+- Consider using Pydantic `EmailStr` for email validation.
+- Decide whether to return raw database IDs in the public response or keep them internal before frontend work.
+- Next product slice: result/status endpoint by public access token.
+
 ## 2026-06-29
 
 Objective:
@@ -33,9 +75,9 @@ Time log:
 - Start: 16:58
 - Break:
 - Back:
-- Stop: 17:30
-- Focused time: approximately 0.5 hours
-- Running total: approximately 7.0 hours
+- Stop: 17:53
+- Focused time: approximately 1.0 hour
+- Running total: approximately 7.5 hours
 
 Completed:
 
@@ -52,6 +94,7 @@ Completed:
   - normalized domain
   - normalized email
   - supported country code
+- Added a backend-supported market mapping for `GB`, `US`, `CA`, `AU` and `IN`, including English language and DataForSEO location codes.
 - Added public access token generation for the qualification shell.
 - Added basic qualification-start logging.
 - Verified the FastAPI route list includes `/qualify/start`.
@@ -63,7 +106,8 @@ Decisions:
 - The frontend can show a progressive form locally, but the backend should receive one submit call.
 - V1 should not infer market from TLD, LLM or page fetch.
 - V1 should ask the user to choose from supported English-language countries.
-- Supported countries for now are `GB`, `US`, `CA` and `AU`.
+- Supported countries for now are `GB`, `US`, `CA`, `AU` and `IN`.
+- The frontend should send product-level country codes; the backend owns provider-specific DataForSEO location-code mapping.
 - The endpoint does not yet write to Postgres, call DataForSEO, call an LLM or calculate a score.
 
 Next:
