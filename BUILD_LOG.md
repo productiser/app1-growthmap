@@ -22,6 +22,83 @@ Running total:
 
 - Through 2026-06-28: approximately 6.5 focused hours tracked retrospectively.
 
+## 2026-07-08
+
+Objective:
+
+- Resume GrowthMap after travel/sickness with one focused backend slice.
+
+Time log:
+
+- Focused time before lunch break: approximately 1.0 hour
+- Break: 13:59 IST
+- Back: 15:24 IST
+- Stop: 16:28 IST
+- Focused time: approximately 2.1 hours
+- Running total: approximately 12.2 hours
+
+Completed:
+
+- Reviewed service/repository transaction boundaries and provider-call evidence handling.
+- Recovered local PostgreSQL after a cold shutdown and restarted it through Homebrew.
+- Inspected the saved DataForSEO ranked-keywords response shape in Postgres.
+- Added ranked-keyword parsing for stored DataForSEO provider responses.
+- Added repository persistence for parsed ranked-keyword evidence.
+- Verified parser output against a saved provider response.
+- Verified ranked-keyword insert behavior with a rollback test.
+
+Next:
+
+- Classify parsed ranked-keyword evidence before scoring or generating a qualification result.
+
+## 2026-07-03
+
+Objective:
+
+- Keep continuity during a flu/recovery day with a light backend slice and concept review.
+
+Time log:
+
+- Focused time: approximately 1.0 hour
+- Running total: approximately 10.1 hours
+
+Completed:
+
+- Reviewed why SQL/table ownership belongs in the repository layer.
+- Added type hints to repository functions for the qualification DB slice.
+- Added a `DataForSeoClient` boundary for external provider calls.
+- Added DataForSEO ranked-keywords and on-page request helpers.
+- Added provider-call persistence helpers for `provider_calls`.
+- Wired `POST /qualify/start` to collect raw DataForSEO evidence after the email-gated qualification request exists.
+- Added DataForSEO status fields to the qualification response schema.
+- Verified compile with the project virtual environment.
+- Ran a live DataForSEO on-page smoke test.
+- Ran an end-to-end local qualification smoke test for `example.com`, creating provider-call rows for ranked keywords and on-page evidence.
+- Reviewed Python fundamentals behind the new code:
+  - why use a class for the API client
+  - what `@dataclass` does
+  - what type annotations do
+  - why Pydantic is better for external API boundaries than simple internal data holders
+  - JSON serialization/deserialization with `dumps`, `loads`, `encode`, `decode` and `response.read()`
+  - why HTTP headers are strings in code while request bodies are bytes
+  - basic TCP/IP segmentation, MSS and packet fragmentation mental models
+
+Decisions:
+
+- Keep the DataForSEO HTTP/auth boundary out of the repository.
+- Store raw provider requests and responses before parsing, scoring or classification.
+- Do not parse ranked keywords, classify relevance or generate a qualification result in this slice.
+- Keep tomorrow light because recovery and travel readiness matter more than forcing a heavy build session.
+
+Next:
+
+- Do a light code review of the new DataForSEO client and provider-call flow.
+- Practise creating small classes manually until the API-client pattern feels less abstract.
+- Record a video on 2026-07-04 if energy and voice are good.
+- No build work planned for 2026-07-05 and 2026-07-06 due to travel.
+- Pick GrowthMap back up on 2026-07-07.
+- Use flight time for Claude course follow-up and passive backend engineering course listening.
+
 ## 2026-06-30
 
 Objective:
@@ -33,9 +110,9 @@ Time log:
 - Start: 17:27
 - Break: 18:11
 - Back: 18:34
-- Stop:
-- Focused time:
-- Running total:
+- Stop: 19:27
+- Focused time: approximately 1.6 hours
+- Running total: approximately 9.1 hours
 
 Completed:
 
@@ -50,12 +127,16 @@ Completed:
 - Implemented and manually tested `create_qualification_request`.
 - Connected `POST /qualify/start` through user, prospect and qualification request creation.
 - Added `user_id`, `prospect_id` and `qualification_id` to the start response.
+- Refactored repository functions to accept a shared database connection from the service layer.
+- Moved the transaction boundary to `start_qualification`, so user/prospect/request creation happens on one connection.
 - Verified the app compiles and still exposes `/qualify/start`.
 
 Decisions:
 
 - Keep repository functions responsible for SQL only.
 - Use parameterized SQL with tuple parameters, for example `(email,)`, instead of raw string values.
+- Service owns the unit of work and shared database connection; repository owns individual SQL statements.
+- Pass the connection into repository functions rather than passing one cursor around.
 
 Next:
 

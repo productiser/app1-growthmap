@@ -5,6 +5,12 @@ class MarketContext(BaseModel):
     country_code: str
     language_code: str
 
+class DataForSeoEvidenceStatus(BaseModel):
+    status: str
+    ranked_keywords_call_id: int | None
+    on_page_call_id: int | None
+    error: str | None
+
 
 class QualificationStartRequest(BaseModel):
     business_url: str
@@ -23,5 +29,6 @@ class QualificationStartResponse(BaseModel):
     email: str
     market: MarketContext
     public_access_token: str
+    dataforseo: DataForSeoEvidenceStatus
     next_step: str
     limitations: list[str]
