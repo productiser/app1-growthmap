@@ -22,6 +22,73 @@ Running total:
 
 - Through 2026-06-28: approximately 6.5 focused hours tracked retrospectively.
 
+## 2026-07-10
+
+Objective:
+
+- Verify parsed `page_checks` insertion, then wire on-page evidence persistence into the qualification flow if the smoke test passes.
+
+Time log:
+
+- Start: 13:00 IST
+- Stop: 13:39 IST
+- Focused time: approximately 0.7 hours
+- Running total: approximately 16.9 hours
+
+Completed:
+
+- Verified `page_checks` insertion with a rollback smoke test against a saved DataForSEO `on_page` provider response.
+- Wired parsed on-page evidence persistence into the qualification flow.
+- Changed `checked_url` to store the actual normalized URL checked, not only the normalized domain.
+- Reordered the on-page flow so the raw provider call is marked completed before parsed `page_checks` insertion.
+- Hardened `extract_page_check_row` so missing `tasks`, `result`, `items` or `h1` do not crash the parser.
+
+Verified:
+
+- `./.venv/bin/python -m compileall app tests`
+- `./.venv/bin/python -m tests.TestOnpageExtract`
+- Parser edge-case import checks for empty provider structures and missing `h1`
+
+Next:
+
+- Resume with one full `POST /qualify/start` smoke test and confirm `provider_calls`, `ranked_keywords` and `page_checks` all persist.
+- Then define the bounded LLM contract for keyword classification plus evidence summary.
+
+## 2026-07-09
+
+Objective:
+
+- Tighten the on-page evidence shape before moving on to LLM classification work.
+
+Time log:
+
+- Focused time: approximately 4.0 hours
+- Running total: approximately 16.2 hours
+
+Completed:
+
+- Rechecked the free-qualification design split between code-owned scoring and LLM-owned evidence interpretation.
+- Updated the module design so keyword buckets are code-defined while LLM classification stays bounded to those buckets.
+- Debugged local PostgreSQL startup after restart and recovered it from a stale `postmaster.pid` lock file.
+- Inspected the saved DataForSEO `on_page` response shape directly from Postgres.
+- Reviewed which on-page fields are meaningful for the V1 free qualification and trimmed the `page_checks` table accordingly.
+- Altered the local `page_checks` table to match the narrowed V1 shape.
+- Implemented `extract_page_check_row` for the current `on_page` response structure.
+- Implemented repository insertion for parsed `page_checks` rows.
+
+Decisions:
+
+- Keep the homepage/on-page evidence slice tight and interpretable for V1.
+- Do not treat DataForSEO `inbound_links_count` as backlink evidence.
+- Keep `onpage_score` as optional future LLM context only, not as a deterministic product score input.
+- Drop unclear or weak V1 fields such as `noindex`, `indexable` and `obvious_broken_page` from the current `page_checks` shape.
+
+Next:
+
+- Verify `page_checks` insertion with a rollback smoke test.
+- Wire parsed on-page persistence into the qualification flow if the smoke test passes.
+- Then define the bounded LLM contract for keyword classification plus evidence summary.
+
 ## 2026-07-08
 
 Objective:

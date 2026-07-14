@@ -23,12 +23,12 @@ class QualificationStartResponse(BaseModel):
     submitted_url: str
     normalised_url: str
     normalised_domain: str
-    user_id:int
-    prospect_id:int
-    qualification_id:int
     email: str
     market: MarketContext
     public_access_token: str
+    user_id:int
+    prospect_id:int
+    qualification_id:int
     dataforseo: DataForSeoEvidenceStatus
     next_step: str
     limitations: list[str]

@@ -87,9 +87,10 @@ Visitor
   -> if cache is usable: reuse evidence
   -> if cache is missing/stale: fetch ranked keywords and page/on-page evidence
   -> system parses provider evidence
-  -> system classifies ranked keywords
+  -> code defines allowed keyword classification buckets
+  -> LLM classifies ranked keywords into those buckets and summarizes the evidence
   -> code calculates deterministic score and outcome
-  -> LLM writes short explanation from verified signals only
+  -> LLM wording may be reused or lightly refined for the final free-result explanation
   -> system stores user qualification result
   -> user sees free qualification page
   -> user can view sample GBP 12 report
@@ -266,6 +267,21 @@ For free qualification, this includes:
 - keyword classifications
 - page/on-page checks
 
+Free-qualification rule:
+
+- Code defines the allowed keyword buckets.
+- The LLM must classify only into those buckets.
+- The LLM may also return a short bounded evidence summary.
+- Code validates the LLM output before persistence or scoring.
+
+Current keyword buckets:
+
+- `business_brand`
+- `other_company_brand`
+- `relevant_commercial`
+- `relevant_informational`
+- `irrelevant_or_ambiguous`
+
 ### Scoring
 
 Code-owned logic.
@@ -281,25 +297,35 @@ Rule:
 
 - The LLM cannot calculate or change the score.
 
+Free-qualification scoring rule:
+
+- Code consumes the stored keyword classifications and page/on-page facts.
+- Code assigns demand evidence strength and final opportunity outcome.
+- The LLM must not decide `good_prospect`, `possible_prospect`, `weak_prospect` or `inconclusive`.
+
 ### Qualification Narrative
 
-LLM-owned wording only.
+LLM-owned evidence interpretation and wording within bounded inputs.
 
 Owns:
 
+- keyword classification within code-defined buckets
+- short evidence summary
 - short headline
 - one or two explanatory sentences
 
 Inputs:
 
-- deterministic score
-- deterministic outcome
+- parsed ranked keywords
+- parsed on-page facts
+- code-defined keyword buckets
+- deterministic score and outcome after code scoring
 - verified signals
 - limitations
 
 Rule:
 
-- The LLM may explain evidence but cannot invent findings or recommend paid work.
+- The LLM may classify and explain evidence but cannot invent findings, change the allowed buckets, or recommend paid work.
 
 Candidate table responsibilities:
 

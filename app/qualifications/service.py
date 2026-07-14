@@ -15,6 +15,7 @@ from app.qualifications.dataforseo_client import (
     build_ranked_keywords_payload,
 )
 from app.qualifications.repository import (
+    create_onpage_checks,
     create_provider_call,
     create_qualification_request,
     create_ranked_keywords,
@@ -188,6 +189,7 @@ def run_dataforseo_evidence_calls(
         )
         evidence_summary["on_page_call_id"] = on_page_call_id
         on_page_response = dataforseo_client.fetch_on_page(normalised_url)
+
         mark_provider_call_completed(
             conn,
             provider_call_id=on_page_call_id,
@@ -195,6 +197,20 @@ def run_dataforseo_evidence_calls(
             provider_task_id=on_page_response.provider_task_id,
             cost_amount=on_page_response.cost,
         )
+        onpage_extract = extract_page_check_row(on_page_response.response_json)
+        if onpage_extract is not None:
+            create_onpage_checks(
+                conn,
+                prospect_id=prospect_id,
+                provider_call_id=on_page_call_id,
+                checked_url=normalised_url,
+                onpage_extract=onpage_extract,
+            )
+        else:
+            logger.warning(
+                "No page_check row extracted for provider_call_id=%s",
+                on_page_call_id,
+            )
     except DataForSeoApiError as error:
         if on_page_call_id and on_page_response is None:
             mark_provider_call_failed(conn, on_page_call_id, str(error))
@@ -245,6 +261,47 @@ def extract_ranked_keywords_rows(response_json: dict[str, Any]) -> list[dict[str
 
     return rows
 
+def extract_page_check_row(response_json: dict[str, Any]) -> dict[str, Any] | None:
+    tasks = response_json.get("tasks") or []
+    if not tasks:
+        return None
+
+    results = tasks[0].get("result") or []
+    if not results:
+        return None
+
+    items = results[0].get("items") or []
+    if not items:
+        return None
+
+    item = items[0] or {}
+    checks = item.get("checks") or {}
+    meta = item.get("meta") or {}
+    page_timing = item.get("page_timing") or {}
+    htags = meta.get("htags") or {}
+    content = meta.get("content") or {}
+
+    h1_values = htags.get("h1") or []
+    h1 = h1_values[0] if h1_values else None
+
+    return {
+        "final_url": item.get("url"),
+        "onpage_score": item.get("onpage_score"),
+        "http_status": item.get("status_code"),
+        "https_enabled": checks.get("is_https"),
+        "redirected": checks.get("is_redirect"),
+        "title": meta.get("title"),
+        "meta_description": meta.get("description"),
+        "h1": h1,
+        "canonical_url": meta.get("canonical"),
+        "fetch_duration_ms": page_timing.get("duration_time"),
+        "description_to_content_consistency": content.get(
+            "description_to_content_consistency"
+        ),
+    }
+
+
+
 def start_qualification(business_url: str, email: str, country_code: str) -> dict:
     normalised_url = normalise_submitted_url(business_url)
     normalised_domain = extract_normalised_domain(normalised_url)
@@ -260,6 +317,7 @@ def start_qualification(business_url: str, email: str, country_code: str) -> dic
     market = SUPPORTED_MARKETS[normalised_country_code]
 
     with connect(db_connection) as conn:
+
         # 1. Create or reuse user based on email id.
         user_id = get_or_create_user(conn, normalised_email)
 
@@ -300,15 +358,15 @@ def start_qualification(business_url: str, email: str, country_code: str) -> dic
         "user_id": user_id,
         "prospect_id": prospect_id,
         "qualification_id": qualification_id,
+         "dataforseo": dataforseo,
         "market": {
             "country_code": normalised_country_code,
             "language_code": market["language_code"],
         },
         "public_access_token": public_access_token,
-        "dataforseo": dataforseo,
+       
         "next_step": "classify_ranked_keyword_evidence",
         "limitations": [
-            "DataForSEO ranked-keyword evidence is parsed and stored but not classified yet.",
-            "No LLM, scoring or result generation has run yet.",
+            "No LLM, scoring or result generation has run yet."
         ],
     }

@@ -185,3 +185,47 @@ def create_ranked_keywords(
                 ),
             )
             logger.info("Extracted keyword inserted")
+
+def create_onpage_checks(
+    conn,
+    prospect_id: int,
+    provider_call_id: int,
+    checked_url: str,
+    onpage_extract: dict[str, Any],
+) -> None:
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO page_checks (
+                prospect_id,
+                provider_call_id,
+                checked_url,
+                final_url,
+                http_status,
+                https_enabled,
+                title,
+                meta_description,
+                h1,
+                canonical_url,
+                redirected,
+                fetch_duration_ms,
+                description_to_content_consistency
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                prospect_id,
+                provider_call_id,
+                checked_url,
+                onpage_extract.get("final_url"),
+                onpage_extract.get("http_status"),
+                onpage_extract.get("https_enabled"),
+                onpage_extract.get("title"),
+                onpage_extract.get("meta_description"),
+                onpage_extract.get("h1"),
+                onpage_extract.get("canonical_url"),
+                onpage_extract.get("redirected"),
+                onpage_extract.get("fetch_duration_ms"),
+                onpage_extract.get("description_to_content_consistency"),
+            ),
+        )
