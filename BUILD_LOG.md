@@ -22,6 +22,209 @@ Running total:
 
 - Through 2026-06-28: approximately 6.5 focused hours tracked retrospectively.
 
+## 2026-09-02
+
+Objective:
+
+- Recovery/travel continuity check-in before moving development from the mini to a laptop.
+- Preserve the current GrowthMap state in git without starting a new sprint.
+
+Completed:
+
+- Reconfirmed the current resume point: the free-qualification LLM provider call is stored, token/cost accounting is wired, and the next backend slice is parsing/validating the LLM content.
+- Confirmed local Postgres is accepting connections on `localhost:5432`.
+- Added laptop setup notes and a placeholder `.env.example` so the repo can be cloned and bootstrapped away from the mini.
+- Documented the Mini DB over Tailscale option using Mini Tailscale IP `100.78.142.13`.
+- Tightened Mini Postgres Tailscale DB access to `growthmap`/`ptalur` over `100.64.0.0/10` with password auth, then verified `select 1` through `100.78.142.13`.
+- Kept the zero-byte local `usage` scratch file out of git.
+
+Verified:
+
+- `./.venv/bin/python -m compileall app tests`
+- `pg_isready -h localhost -p 5432`
+- DB `select 1` through localhost app `DATABASE_URL`
+- DB `select 1` through Mini Tailscale IP `100.78.142.13`
+
+Next:
+
+- On the laptop, clone the repo, run `uv sync`, copy `.env.example` to `.env`, create the `growthmap` database, and apply `Design/DDL.sql`.
+- If using the Mini database while travelling, keep Tailscale connected and set laptop `DATABASE_URL` to the Mini DB at `100.78.142.13`.
+- Resume GrowthMap from `parse_llm_content()`: inspect the malformed `choices[0].message.content` JSON before deciding between prompt/schema hardening, parser error handling, or validation/storage.
+- Keep the first resumed session as a small continuity slice, not a broad refactor.
+
+## 2026-07-26
+
+Objective:
+
+- Recovery-aware progress session after a difficult week, continuing into next week.
+- Keep the build slice small: tighten the stored OpenRouter `qualification_inference` usage fields before response parsing.
+- Prepare one separate short video from the current backend lesson; video planning/recording is not counted as focused GrowthMap build time.
+
+Time log:
+
+- Start: 13:42 IST
+- Stop: 14:40 IST
+- Back: 15:45 IST
+- Stop: 19:13 IST due to home-move interruption
+- Focused time: approximately 1.0 hour for the earlier verified backend slice; later resumed block was interrupted and not finalized as focused build time
+
+Completed:
+
+- Review the current LLM provider-call response shape.
+- Codex added a small token-accounting cleanup before the user clarified backend coding should stay user-led unless explicitly delegated.
+- Confirmed `LLMInferenceResponse.cost` already reads OpenRouter cost from `response_json["usage"]["cost"]`.
+- Added `LLMInferenceResponse.input_tokens` and `LLMInferenceResponse.output_tokens` for `usage.prompt_tokens` and `usage.completion_tokens`.
+- Updated provider-call completion persistence so `input_tokens` and `output_tokens` can be stored on `provider_calls`.
+- Added a plain module test for OpenRouter usage-field extraction.
+- User ran a begin/end DB smoke check with `provider_calls.id = 10` and confirmed `status`, raw `response_json->'usage'`, `cost_amount`, `input_tokens` and `output_tokens` are all present.
+- Resumed LLM content parsing and clarified the response-shape concept: Postgres JSONB becomes the outer Python dict, while `choices[0].message.content` is a JSON-looking string that still needs `json.loads`.
+
+Verified:
+
+- `./.venv/bin/python -m compileall app tests`
+- `./.venv/bin/python -m tests.TestLLMInferenceClient`
+- User DB smoke check for `provider_calls.id = 10`
+
+Next:
+
+- Resume by inspecting the malformed LLM content string around `json.loads(content_str)` failure: `JSONDecodeError: Expecting ',' delimiter: line 110 column 3 (char 4755)`.
+- After the malformed-content issue is understood, decide whether to harden the prompt, add parser error handling, or use a more constrained response format before validation/storage.
+- Use APP1.9 as the short-video recording target: raw HTTP first, provider-call logging, and code-owned persistence around LLM responses.
+
+## 2026-07-24
+
+Objective:
+
+- Mini session during house-move constraints.
+- Tighten the stored OpenRouter provider-call cost/token handling before moving to response parsing.
+
+Time log:
+
+- Start: 18:43 IST
+
+Next:
+
+- Update `LLMInferenceResponse.cost` to read cost from `response_json["usage"]["cost"]`.
+- Consider adding token extraction from `usage.prompt_tokens` and `usage.completion_tokens`.
+- Re-run compile/import checks and decide whether the DB update helper needs token fields today or tomorrow.
+
+## 2026-07-22
+
+Objective:
+
+- Continue the bounded `qualification_inference` provider-call persistence slice.
+- Use the next hour for code-first GrowthMap work after publishing APP1.8 separately.
+
+Time log:
+
+- Non-focused YouTube work: APP1.8 short published; not counted in GrowthMap focused build time.
+- Start: 16:13 IST
+- Stop: 17:09 IST
+- Focused time: approximately 0.9 hours
+
+Completed:
+
+- Added a live smoke script for `qualification_inference` provider-call persistence.
+- Recovered local Postgres from a stale `postmaster.pid` restart issue.
+- Ran the live OpenRouter inference path and confirmed `provider_calls.id = 7` was stored with `status = completed`, request JSON and response JSON.
+- Found and fixed the smoke-test DB-read issue where Postgres `NUMERIC` values returned as Python `Decimal` were not JSON serializable.
+- Inspected the stored OpenRouter wrapper enough to confirm the actual model content is nested under `choices[0].message.content`.
+
+Verified:
+
+- `uv run python -m compileall app tests`
+- Latest `provider_calls` row for `stage = 'qualification_inference'` has request and response JSON stored.
+
+Next:
+
+- Update `LLMInferenceResponse.cost` to read OpenRouter cost from `response_json["usage"]["cost"]` instead of a top-level `cost`.
+- Consider storing `input_tokens` and `output_tokens` from `usage.prompt_tokens` and `usage.completion_tokens`.
+- Then decide whether to parse the LLM response content next or first clean up return shapes and error handling.
+
+## 2026-07-21
+
+Objective:
+
+- Continue wiring the bounded `qualification_inference` LLM/provider-call slice.
+
+Time log:
+
+- Focused time: approximately 0.75 hours
+
+Completed:
+
+- Worked on the code path for saving the `qualification_inference` LLM request/response through the provider-call boundary.
+- Did not update Codex live during the session.
+
+Next:
+
+- Review the current diff, then compile/import-check before deciding on a live LLM smoke test.
+
+## 2026-07-18
+
+Objective:
+
+- Resume after a long-ish gap and make progress on the bounded qualification LLM/provider-call slice.
+- Keep a separate small YouTube recording block if the explanation is clear enough.
+
+Time log:
+
+- Non-focused check-in: 18:22 IST
+- Start: 19:27 IST
+- Stop: 20:09 IST
+- Focused time: approximately 0.7 hours
+
+Completed:
+
+- Start with a short cumulative quiz.
+- Reviewed the class method boundary for `LLMInferenceClient`.
+- Fixed the public `run_qualification_inference` client method so the service calls a clear method and the client calls `_post` internally.
+- Fixed the mistaken explicit `self` argument inside the client payload builder call.
+
+Verified:
+
+- `./.venv/bin/python -m compileall app tests`
+- `./.venv/bin/python -c "from app.qualifications.service import run_qualification_inference; from app.qualifications.llm_inference_client import LLMInferenceClient; print('imports ok')"`
+
+Next:
+
+- Save the `qualification_inference` LLM request/response in `provider_calls`.
+- Then decide whether to run a live LLM smoke test.
+- Plan one small YouTube recording block separately from focused build time.
+
+## 2026-07-14
+
+Objective:
+
+- Resume after family-commitment break and plan the bounded provider LLM call for keyword classification plus evidence summary.
+- Record a short video if the plan is clear enough to explain cleanly.
+
+Time log:
+
+- Start: 16:40 IST
+- Break: approximately 3 hours during the session
+- Stop: 19:40 IST
+- Focused time: not finalized; exclude the 3-hour break from any later total
+
+Session reminder:
+
+- End each coding day by checking in the finished slice or explicitly noting why it is not ready to check in.
+
+Completed:
+
+- Planned the `qualification_inference` LLM contract.
+- Added the initial LLM inference client structure and system prompt.
+- Updated the module design so the LLM can recommend `weak_prospect` or `possible_prospect` with advisory confidence while code still validates and persists deliberately.
+
+Verified:
+
+- `./.venv/bin/python -m compileall app tests`
+- `./.venv/bin/python -c "from app.qualifications.service import run_qualification_inference; print('imports ok')"`
+
+Next:
+
+- Save the `qualification_inference` provider call, fix the live client call boundary, and test the LLM response path properly.
+
 ## 2026-07-10
 
 Objective:

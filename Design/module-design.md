@@ -272,6 +272,7 @@ Free-qualification rule:
 - Code defines the allowed keyword buckets.
 - The LLM must classify only into those buckets.
 - The LLM may also return a short bounded evidence summary.
+- The LLM may recommend `weak_prospect` or `possible_prospect` with a bounded confidence score.
 - Code validates the LLM output before persistence or scoring.
 
 Current keyword buckets:
@@ -291,17 +292,17 @@ Owns:
 - demand evidence score
 - SEO headroom score
 - technical feasibility score
-- final outcome
+- final stored outcome
 
 Rule:
 
-- The LLM cannot calculate or change the score.
+- The LLM cannot calculate or change deterministic score fields.
 
 Free-qualification scoring rule:
 
 - Code consumes the stored keyword classifications and page/on-page facts.
-- Code assigns demand evidence strength and final opportunity outcome.
-- The LLM must not decide `good_prospect`, `possible_prospect`, `weak_prospect` or `inconclusive`.
+- Code assigns deterministic demand evidence strength and final stored outcome.
+- The LLM recommendation is advisory input, not a replacement for code-owned validation and persistence.
 
 ### Qualification Narrative
 
@@ -310,6 +311,8 @@ LLM-owned evidence interpretation and wording within bounded inputs.
 Owns:
 
 - keyword classification within code-defined buckets
+- advisory qualification recommendation: `weak_prospect` or `possible_prospect`
+- advisory confidence score from `0.0` to `1.0`
 - short evidence summary
 - short headline
 - one or two explanatory sentences
@@ -319,13 +322,13 @@ Inputs:
 - parsed ranked keywords
 - parsed on-page facts
 - code-defined keyword buckets
-- deterministic score and outcome after code scoring
+- deterministic score and final stored outcome after code scoring, when available
 - verified signals
 - limitations
 
 Rule:
 
-- The LLM may classify and explain evidence but cannot invent findings, change the allowed buckets, or recommend paid work.
+- The LLM may classify, recommend weak/possible prospect confidence, and explain evidence, but cannot invent findings, change the allowed buckets, or recommend paid work.
 
 Candidate table responsibilities:
 

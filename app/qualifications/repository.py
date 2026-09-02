@@ -118,6 +118,8 @@ def mark_provider_call_completed(
     response_json: dict[str, Any],
     provider_task_id: str | None,
     cost_amount: float | None,
+    input_tokens: int | None = None,
+    output_tokens: int | None = None,
 ) -> None:
     with conn.cursor() as cursor:
         cursor.execute(
@@ -128,10 +130,19 @@ def mark_provider_call_completed(
                 response_json = %s,
                 cost_amount = %s,
                 cost_currency = 'USD',
+                input_tokens = %s,
+                output_tokens = %s,
                 completed_at = CURRENT_TIMESTAMP
             WHERE id = %s
             """,
-            (provider_task_id, Json(response_json), cost_amount, provider_call_id),
+            (
+                provider_task_id,
+                Json(response_json),
+                cost_amount,
+                input_tokens,
+                output_tokens,
+                provider_call_id,
+            ),
         )
 
 def mark_provider_call_failed(

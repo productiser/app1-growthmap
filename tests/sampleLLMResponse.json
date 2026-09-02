@@ -1,0 +1,50 @@
+{
+    "keyword_classifications": [
+      {
+        "keyword": "south kensington dentist",
+        "classification": "relevant_commercial",
+        "reason": "Local dentist query with likely booking or enquiry intent."
+      },
+      {
+        "keyword": "natural turkey teeth",
+        "classification": "relevant_informational",
+        "reason": "Dentally relevant query focused on the appearance of Turkey teeth."
+      },
+      {
+        "keyword": "dentist in south kensington",
+        "classification": "relevant_commercial",
+        "reason": "Local provider query with likely booking or enquiry intent."
+      },
+      {
+        "keyword": "queensgate dental",
+        "classification": "business_brand",
+        "reason": "The phrase matches the submitted Queensgate Dental domain."
+      },
+      {
+        "keyword": "all-on-6 dental implants uk",
+        "classification": "relevant_commercial",
+        "reason": "Specific dental implant treatment query with likely provider or service intent."
+      }
+    ],
+    "recommendation": {
+      "recommended_outcome": "possible_prospect",
+      "confidence_score": 0.9,
+      "reason": "The supplied evidence shows rankings for multiple relevant commercial queries, including local dentist terms at positions 6 and 7 and an implant treatment term at position 2."
+    },
+    "evidence_summary": "The domain ranks for local dental service searches, a specific implant query, branded searches, and several dental information topics. The supplied commercial rankings range from position 2 to position 9.",
+    "verified_signals": [
+      "\"all-on-6 dental implants uk\" ranks at position 2 with reported search volume 110 and CPC 10.63.",
+      "\"dentist in south kensington\" ranks at position 6 and \"south kensington dentist\" ranks at position 7, each with reported search volume 390.",
+      "The two Queensgate-branded queries rank at positions 2 and 5.",
+      "The homepage returned HTTP 200 over HTTPS without a redirect.",
+      "The homepage title, meta description, and H1 reference dentists or dental services in South Kensington."
+    ],
+    "limitations": [
+      "The evidence does not include organic traffic, enquiries, bookings, leads, or revenue.",
+      "Rankings are supplied for only the listed keywords and do not establish broader search visibility.",
+      "The page check covers the submitted homepage and does not establish site-wide technical condition.",
+      "Keyword intent classifications are advisory and cannot confirm individual searcher intent."
+    ],
+    "headline": "Relevant dental visibility with several commercial rankings",
+    "explanation": "The domain has verified visibility for local dentist and implant-related searches, alongside broader informational dental terms. This supports a possible_prospect recommendation, while business impact cannot be determined from the supplied evidence."
+  }

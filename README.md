@@ -75,15 +75,45 @@ Install dependencies:
 uv sync
 ```
 
-Create a local `.env` file for secrets. Do not commit it.
+Create a local `.env` file for secrets. Do not commit it:
+
+```bash
+cp .env.example .env
+```
 
 Expected environment variables will include:
 
 ```text
+DATABASE_URL=
 DATAFORSEO_LOGIN=
 DATAFORSEO_PASSWORD=
-OPENAI_API_KEY=
+OPENROUTER_API_KEY=
 ```
+
+Laptop setup checklist with a local laptop database:
+
+```bash
+git clone git@github.com:productiser/app1-growthmap.git
+cd app1-growthmap
+uv sync
+cp .env.example .env
+createdb growthmap
+psql growthmap < Design/DDL.sql
+uv run python -m compileall app tests
+```
+
+Laptop setup using the Mini database over Tailscale:
+
+```text
+DATABASE_URL=postgresql://ptalur:<password>@100.78.142.13:5432/growthmap
+```
+
+The Mini's Tailscale IP is `100.78.142.13`. Keep Tailscale connected on both
+machines before running the app from the laptop.
+
+The current local development database is Postgres 16. If Postgres looks stuck
+after a cold shutdown, first check whether the server is actually running before
+removing any stale `postmaster.pid`.
 
 Run the API locally:
 
@@ -102,6 +132,17 @@ curl http://127.0.0.1:8000/health
 This is a learning-first public repo. Design decisions, tradeoffs and progress notes are intentionally included where useful.
 
 Raw secrets, local scratch files, personal content planning notes, large provider downloads and archived experiments are excluded from git.
+
+Current resume point:
+
+- Continue the free-qualification LLM boundary.
+- `parse_llm_content()` currently reads `choices[0].message.content` and calls
+  `json.loads`.
+- The latest stored OpenRouter response fails parsing because the model content
+  is malformed JSON near line 110 / char 4755. Inspect that exact content before
+  changing the prompt, parser recovery, or validation/storage behavior.
+- For travel, the laptop can use the Mini's DB over Tailscale with
+  `DATABASE_URL=postgresql://ptalur:<password>@100.78.142.13:5432/growthmap`.
 
 ## License
 

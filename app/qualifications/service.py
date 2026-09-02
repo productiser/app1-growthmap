@@ -3,9 +3,10 @@ import os
 import secrets
 from typing import Any
 from urllib.parse import urlparse
-
+import json
 from dotenv import load_dotenv
 from psycopg2 import connect
+
 
 from app.qualifications.dataforseo_client import (
     DataForSeoApiError,
@@ -13,6 +14,11 @@ from app.qualifications.dataforseo_client import (
     DataForSeoConfigurationError,
     build_on_page_payload,
     build_ranked_keywords_payload,
+)
+from app.qualifications.llm_inference_client import (
+    LLMInferenceClient,
+    LLMInferenceConfigError,
+    OPENROUTER_BASE_URL,
 )
 from app.qualifications.repository import (
     create_onpage_checks,
@@ -130,12 +136,20 @@ def run_dataforseo_evidence_calls(
         dataforseo_client = DataForSeoClient()
     except DataForSeoConfigurationError as error:
         evidence_summary["error"] = str(error)
-        return evidence_summary
+        return {
+            "summary": evidence_summary,
+            "parsed_evidence": {
+                "ranked_keywords": [],
+                "page_check": None,
+            },
+        }
 
     ranked_keywords_response = None
     ranked_keywords_call_id = None
     on_page_response = None
     on_page_call_id = None
+    ranked_keywords = []
+    onpage_extract = None
 
     try:
         ranked_keywords_request = build_ranked_keywords_payload(
@@ -218,10 +232,23 @@ def run_dataforseo_evidence_calls(
             mark_provider_call_failed(conn, ranked_keywords_call_id, str(error))
         evidence_summary["status"] = "failed"
         evidence_summary["error"] = str(error)
-        return evidence_summary
+        return {
+            "summary": evidence_summary,
+            "parsed_evidence": {
+                "ranked_keywords": ranked_keywords,
+                "page_check": onpage_extract,
+            },
+        }
 
     evidence_summary["status"] = "completed"
-    return evidence_summary
+
+    return {
+        "summary": evidence_summary,
+        "parsed_evidence": {
+            "ranked_keywords": ranked_keywords,
+            "page_check": onpage_extract,
+        },
+    }
 
 
 # Extract ranked keywords and parse before storing.
@@ -300,6 +327,48 @@ def extract_page_check_row(response_json: dict[str, Any]) -> dict[str, Any] | No
         ),
     }
 
+def parse_llm_content(response_json:dict[str,Any])->dict[str,Any]:
+    content_str =  response_json["choices"][0]["message"]["content"]
+    print(content_str[4680:4820])
+    print(repr(content_str[4680:4820]))
+    return json.loads(content_str)
+
+# LLM Inference call for qualification
+def run_qualification_inference(conn, qualification_id:int, prospect_id:int, llm_input: dict) -> dict:
+    try:
+
+        provider_call_id = create_provider_call(conn,
+        qualification_id,
+        prospect_id,
+        provider= "openrouter-openai-gpt-latest",
+        stage= "qualification_inference",
+        endpoint= OPENROUTER_BASE_URL,
+        request_json=llm_input)
+
+        llm_client = LLMInferenceClient()
+
+        llm_response = llm_client.run_qualification_inference(llm_input)
+
+        mark_provider_call_completed( conn,
+        provider_call_id=provider_call_id,
+        response_json=llm_response.response_json,
+        provider_task_id =None ,
+        cost_amount= llm_response.cost,
+        input_tokens=llm_response.input_tokens,
+        output_tokens=llm_response.output_tokens)
+
+        #Extract data from LLM response.
+        llm_content_text = parse_llm_content(llm_response.response_json)
+
+
+    except LLMInferenceConfigError as error:
+        mark_provider_call_failed(conn, provider_call_id, str(error))
+        return {
+            "status":"failed",
+            "provider_call_id":provider_call_id,
+            "error":str(error)
+        }
+    return llm_response
 
 
 def start_qualification(business_url: str, email: str, country_code: str) -> dict:
@@ -349,6 +418,21 @@ def start_qualification(business_url: str, email: str, country_code: str) -> dic
             market=market,
         )
 
+        # 5.1 Create inference input payload.
+        llm_input = {
+            "qualification_id": qualification_id,
+            "prospect_id": prospect_id,
+            "normalised_domain": normalised_domain,
+            "normalised_url": normalised_url,
+            "country_code": normalised_country_code,
+            "language_code": market["language_code"],
+            "ranked_keywords": dataforseo["parsed_evidence"]["ranked_keywords"],
+            "page_check": dataforseo["parsed_evidence"]["page_check"],
+        }
+
+        #5. Run the LLM Inference call on qualification.
+        llm_inference = run_qualification_inference(conn,qualification_id,prospect_id, llm_input)
+
     return {
         "status": "validated",
         "submitted_url": business_url,
@@ -358,7 +442,7 @@ def start_qualification(business_url: str, email: str, country_code: str) -> dic
         "user_id": user_id,
         "prospect_id": prospect_id,
         "qualification_id": qualification_id,
-         "dataforseo": dataforseo,
+         "dataforseo": dataforseo["summary"],
         "market": {
             "country_code": normalised_country_code,
             "language_code": market["language_code"],
